@@ -1,6 +1,5 @@
-<!-- <h1>
-    {{data.name}}</h1> -->
-<button (click)="display()">Click</button>
-
-
-<h2>В вашем городе сейчас: {{temp}} градусов</h2>
+<div class="container" [ngStyle]="{'background': 'url('+imageSrc+') center center/cover no-repeat'}">
+    <app-header [dataNow]="dataNow" [srcNow]="srcNow"></app-header>
+    <app-forecast [dataForcast]="dataForcast" [srcForcast]="srcForcast"></app-forecast>
+    <app-widgets [dataNow]="dataNow"></app-widgets>
+</div>
