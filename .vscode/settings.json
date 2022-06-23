@@ -1,0 +1,4 @@
+{
+    "css.lint.ieHack": "warning",
+    "css.lint.float": "warning"
+}

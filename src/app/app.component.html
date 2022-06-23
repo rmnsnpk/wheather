@@ -1,5 +1,31 @@
-<div class="container" [ngStyle]="{'background': 'url('+imageSrc+') center center/cover no-repeat'}">
-    <app-header [dataNow]="dataNow" [srcNow]="srcNow"></app-header>
-    <app-forecast [dataForcast]="dataForcast" [srcForcast]="srcForcast"></app-forecast>
-    <app-widgets [dataNow]="dataNow"></app-widgets>
+<!-- <div class="arrowPrev" (click)="prev()"></div>
+<div class="arrowNext" (click)="next()"></div>
+<div class="dots_block">
+    <div class="dots" *ngFor="let city of data; let i = index" [ngClass]="{ dots_active: !(i - current) }"></div>
+</div>
+<app-form [data]="data" [imageSrc]="imageSrc" [current]="current"></app-form>
+<div *ngFor="let city of data; let i = index" class="container" [ngStyle]="{
+    background: 'url(' + imageSrc[i] + ') center center/cover no-repeat',
+    opacity: i === current ? '1' : '0'
+  }">
+    <div>
+        <div class="delete" [ngClass]="{ disabled: !i }" (click)="del()"></div>
+        <app-header [dataNow]="data[i].currentWeatherData"></app-header>
+        <app-forecast *ngIf="data" [dataForcast]="data[i].forecastWeatherData"></app-forecast>
+        <app-widgets *ngIf="data" [dataNow]="data[i].currentWeatherData"></app-widgets>
+    </div>
+</div> -->
+<div class="window" [ngStyle]="{
+    background: data[current]
+      ? 'url(' +
+        '../assets/img/' +
+        data[current].currentWeatherData.weather[0].icon +
+        '.jpg' +
+        ') center center/cover no-repeat'
+      : 'black'
+  }">
+    <app-alert *ngIf="alertOnScreen"></app-alert>
+    <app-form [data]="data" [current]="current" (newCity)="addCity($event)"></app-form>
+    <app-dots [data]="data" [current]="current"></app-dots>
+    <app-slider [data]="data" [current]="current" (onNext)="nextSlide()" (onPrev)="prevSlide()"></app-slider>
 </div>

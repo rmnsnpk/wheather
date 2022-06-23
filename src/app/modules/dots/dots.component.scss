@@ -1,0 +1,25 @@
+.dots_block {
+    width: 250px;
+    height: 30px;
+    background-color: rgba(87, 87, 87, 0.27);
+    z-index: 2;
+    margin: 0 auto;
+    border-radius: 30px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-bottom: 10px;
+    .dots {
+        width: 10px;
+        height: 10px;
+        transition: 0.5s;
+        border-radius: 10px;
+        background-color: #fff;
+    }
+    .dots_active {
+        width: 15px;
+        height: 15px;
+        border-radius: 15px;
+        background-color: #fff;
+    }
+}

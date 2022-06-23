@@ -4,18 +4,21 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { HeaderComponent } from './header/header.component';
-import { ForecastComponent } from './forecast/forecast.component';
-import { IntPipe } from './int.pipe';
+import { HeaderComponent } from './modules/slider/header/header.component';
+import { ForecastComponent } from './modules/slider/forecast/forecast.component';
+import { IntPipe } from './pipes/int.pipe';
 
-import { WidgetsComponent } from './widgets/widgets.component';
-import { WindWidgetComponent } from './wind-widget/wind-widget.component';
-import { WindPipe } from './wind.pipe';
-import { FeelsLikeWidgetComponent } from './feels-like-widget/feels-like-widget.component';
-import { HumidityWidgetComponent } from './humidity-widget/humidity-widget.component';
-import { SunriseWidgetComponent } from './sunrise-widget/sunrise-widget.component';
-import { TimePipe } from './time.pipe';
-
+import { WidgetsComponent } from './modules/slider/widgets/widgets.component';
+import { WindWidgetComponent } from './modules/slider/widgets/wind-widget/wind-widget.component';
+import { WindPipe } from './pipes/wind.pipe';
+import { FeelsLikeWidgetComponent } from './modules/slider/widgets/feels-like-widget/feels-like-widget.component';
+import { HumidityWidgetComponent } from './modules/slider/widgets/humidity-widget/humidity-widget.component';
+import { SunriseWidgetComponent } from './modules/slider/widgets/sunrise-widget/sunrise-widget.component';
+import { FormComponent } from './modules/form/form.component';
+import { FormsModule } from '@angular/forms';
+import { SliderComponent } from './modules/slider/slider.component';
+import { DotsComponent } from './modules/dots/dots.component';
+import { AlertComponent } from './modules/alert/alert.component';
 
 @NgModule({
   declarations: [
@@ -29,16 +32,13 @@ import { TimePipe } from './time.pipe';
     FeelsLikeWidgetComponent,
     HumidityWidgetComponent,
     SunriseWidgetComponent,
-    TimePipe,
-
-
+    FormComponent,
+    SliderComponent,
+    DotsComponent,
+    AlertComponent,
   ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    HttpClientModule,
-  ],
+  imports: [BrowserModule, AppRoutingModule, HttpClientModule, FormsModule],
   providers: [HttpClient],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

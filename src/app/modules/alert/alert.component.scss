@@ -1,0 +1,42 @@
+.alert {
+    width: 400px;
+    height: 100px;
+    background-color: rgb(87, 87, 87);
+    position: fixed;
+    border-radius: 30px;
+    left: 3%;
+    text-align: center;
+    padding-top: 20px;
+    z-index: 3;
+    transition: 0.3s;
+    animation: toShow 5s;
+    &_title {
+        color: white;
+        font-size: 24px;
+        font-weight: 300;
+        margin-bottom: 10px;
+    }
+    &_text {
+        color: white;
+        font-size: 18px;
+        font-weight: 100;
+    }
+}
+
+@keyframes toShow {
+    0% {
+        top: -100px;
+    }
+    20% {
+        top: 40px;
+    }
+    85% {
+        top: 10px;
+    }
+    95% {
+        top: 40px;
+    }
+    100% {
+        top: -100px;
+    }
+}
