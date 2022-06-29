@@ -17,21 +17,13 @@ import {
   mergeMap,
   take,
   delay,
-  catchError,
 } from 'rxjs/operators';
-import { AddError } from './interfaces/alert-type';
+import { CurrentWeatherData } from './interfaces/current-weather-data';
+import { ForecastWeatherData } from './interfaces/forecast-weather-data';
 import { WheatherData } from './interfaces/wheather-data';
 import { CityData } from './interfaces/city-data';
 import { Coordinates } from './interfaces/coordinates';
-import {
-  concat,
-  from,
-  fromEvent,
-  Observable,
-  of,
-  Subscriber,
-  throwError,
-} from 'rxjs';
+import { concat, from, fromEvent, of } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -42,12 +34,10 @@ export class AppComponent {
   title: string;
   data: WheatherData[] = [];
   cityUseList: string[] = ['Minsk', 'Moskow', 'Vilnus', 'London', 'Kiev'];
-
   constructor(private WhetherService: WhetherService) {}
   current: number = 0;
   userPosition: Coordinates;
   alertOnScreen: boolean = false;
-  alertMessages: AddError[] = [];
 
   ngOnInit() {
     this.WhetherService.getLocation()
@@ -64,7 +54,7 @@ export class AppComponent {
           return concat(currentWeatherData, forecastWeatherData);
         }),
         bufferCount(2),
-        map((arr) => {
+        map((arr: [CurrentWeatherData, ForecastWeatherData]) => {
           return {
             currentWeatherData: arr[0],
             forecastWeatherData: arr[1],
@@ -74,7 +64,9 @@ export class AppComponent {
       )
       .subscribe((response: WheatherData) => {
         this.data[0] = response;
+        console.log(this.data);
       });
+
     this.cityUseList.forEach((cityName: string, i: number) => {
       this.WhetherService.getLocationByCity(cityName)
         .pipe(
@@ -98,8 +90,9 @@ export class AppComponent {
               forecastWeatherData: arr[1],
             };
           }),
-          take(1)
+          take(5)
         )
+
         .subscribe((response: WheatherData) => {
           this.data[i + 1] = response;
         });
@@ -129,39 +122,19 @@ export class AppComponent {
             };
           })
         )
-        .subscribe(
-          (response: WheatherData) => {
-            this.data.push(response);
-            this.current = this.data.length - 1;
-          },
-          () => {
-            if (this.alertMessages.length <= 3) {
-              this.alertMessages.unshift({
-                title: 'Город не найден',
-                text: 'Попробуйте ещё раз',
-              });
-            } else {
-              this.alertMessages.pop();
-              this.alertMessages.unshift({
-                title: 'Город не найден',
-                text: 'Попробуйте ещё раз',
-              });
-            }
-          }
-        );
+        .subscribe((response: WheatherData) => {
+          this.data.push(response);
+          this.current = this.data.length - 1;
+        });
     } else {
-      if (this.alertMessages.length <= 3) {
-        this.alertMessages.unshift({
-          title: 'Список городов переполнен',
-          text: 'Максимальное количество городов: 10',
-        });
-      } else {
-        this.alertMessages.pop();
-        this.alertMessages.unshift({
-          title: 'Список городов переполнен',
-          text: 'Максимальное количество городов: 10',
-        });
-      }
+      of(this.alertOnScreen)
+        .pipe(
+          map((alertOnScreen: boolean) => {
+            this.alertOnScreen = !alertOnScreen;
+          }),
+          delay(5000)
+        )
+        .subscribe(() => (this.alertOnScreen = !this.alertOnScreen));
     }
   }
   nextSlide() {

@@ -1,6 +1,6 @@
 import { Injectable, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { from, Observable, Observer, of } from 'rxjs';
+import { from, Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { async } from '@angular/core/testing';
 import { Coordinates } from '../interfaces/coordinates';
@@ -16,20 +16,26 @@ export class WhetherService {
   coords: { lat: number; lon: number }[] = [];
 
   getLocation(): Observable<any> {
-    return new Observable((observer: Observer<GeolocationPosition>) => {
-      if (window.navigator && window.navigator.geolocation) {
-        window.navigator.geolocation.getCurrentPosition(
-          (position) => {
-            observer.next(position);
+    return Observable.create(
+      (observer: {
+        next: (arg0: GeolocationPosition) => GeolocationPosition;
+        complete: (arg0: GeolocationPosition) => void;
+        error: (arg0: string | GeolocationPositionError) => void;
+      }) => {
+        if (window.navigator && window.navigator.geolocation) {
+          window.navigator.geolocation.getCurrentPosition(
+            (position) => {
+              observer.next(position);
 
-            observer.complete();
-          },
-          (error) => observer.error(error)
-        );
-      } else {
-        observer.error('Unsupported Browser');
+              observer.complete(position);
+            },
+            (error) => observer.error(error)
+          );
+        } else {
+          observer.error('Unsupported Browser');
+        }
       }
-    });
+    );
   }
 
   getDataNow(coords: Coordinates) {

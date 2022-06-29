@@ -1,0 +1,68 @@
+.alert {
+    width: 400px;
+    height: 100px;
+    background-color: rgb(87, 87, 87);
+    border-radius: 30px;
+    text-align: center;
+    padding-top: 20px;
+    transition: 1s;
+    margin: 10px 0;
+    position: relative;
+    animation: toShow 0.3s 1;
+    &_title {
+        color: white;
+        font-size: 24px;
+        font-weight: 300;
+        margin-bottom: 10px;
+    }
+    &_text {
+        color: white;
+        font-size: 18px;
+        font-weight: 100;
+    }
+    .delete {
+        width: 30px;
+        height: 30px;
+        background: url("../../../assets/img/del.png") center center/cover no-repeat;
+        border: none;
+        position: absolute;
+        right: 10px;
+        top: 10px;
+        opacity: 0.5;
+        z-index: 3;
+        &:hover {
+            opacity: 1;
+            cursor: pointer;
+        }
+    }
+    &_deleted {
+        width: 400px;
+        height: 100px;
+        background-color: rgb(87, 87, 87);
+        border-radius: 30px;
+        text-align: center;
+        padding-top: 20px;
+        transition: 1s;
+        margin: 10px 0;
+        position: relative;
+        animation: toDelete 1s 1;
+    }
+}
+
+@keyframes toShow {
+    0% {
+        top: -400px;
+    }
+    100% {
+        top: 0;
+    }
+}
+
+@keyframes toDelete {
+    0% {
+        top: 0px;
+    }
+    100% {
+        top: -1400px;
+    }
+}
