@@ -1,3 +1,0 @@
-<app-header *ngIf="data[current]" [dataNow]="data[current].currentWeatherData" [current]="current" (onNext)="onNextClick()" (onPrev)="onPrevClick()" (del)="onDel()"></app-header>
-<app-forecast *ngIf="data[current]" [dataForcast]="data[current].forecastWeatherData"></app-forecast>
-<app-widgets *ngIf="data[current]" [dataNow]="data[current].currentWeatherData"></app-widgets>

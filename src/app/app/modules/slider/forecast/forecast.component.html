@@ -1,9 +1,0 @@
-<div class="block" *ngIf="dataForcast">
-    <div class="card" *ngFor="let item of dataForcast.list; let i = index">
-        <h2 class="time">{{ dataForcast.list[i].dt_txt | date: "hh" }}</h2>
-        <img [src]="
-        'http://openweathermap.org/img/wn/' + item.weather[0].icon + '@2x.png'
-      " alt="weather" class="forcastImg" />
-        <h2 class="temp">{{ dataForcast.list[i].main.temp | int }}°</h2>
-    </div>
-</div>

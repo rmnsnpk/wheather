@@ -5,33 +5,20 @@ import {
   Input,
   EventEmitter,
 } from '@angular/core';
-import { WhetherService } from './services/whether.service';
 import {
-  filter,
-  concatAll,
-  mergeAll,
   concatMap,
   map,
-  switchMap,
   bufferCount,
-  mergeMap,
   take,
-  delay,
-  catchError,
+  switchMap,
+  tap,
 } from 'rxjs/operators';
 import { AddError } from './interfaces/alert-type';
 import { WheatherData } from './interfaces/wheather-data';
 import { CityData } from './interfaces/city-data';
 import { Coordinates } from './interfaces/coordinates';
-import {
-  concat,
-  from,
-  fromEvent,
-  Observable,
-  of,
-  Subscriber,
-  throwError,
-} from 'rxjs';
+import { concat, from, Observable } from 'rxjs';
+import { WhetherService } from './services/whether.service';
 
 @Component({
   selector: 'app-root',
@@ -39,17 +26,67 @@ import {
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent {
+  constructor(private WhetherService: WhetherService) {}
+
   title: string;
   data: WheatherData[] = [];
+  defaultCitiesCoords: Coordinates[] = [
+    {
+      lat: 35.6828387,
+      lon: -0.1276474,
+    },
+    {
+      lat: 41.8933203,
+      lon: 12.4829321,
+    },
+    {
+      lat: 48.8588897,
+      lon: 2.3200410217200766,
+    },
+    {
+      lat: 35.6828387,
+      lon: 139.7594549,
+    },
+    {
+      lat: 38.8950368,
+      lon: -77.0365427,
+    },
+  ];
   cityUseList: string[] = ['Minsk', 'Moskow', 'Vilnus', 'London', 'Kiev'];
 
-  constructor(private WhetherService: WhetherService) {}
   current: number = 0;
-  userPosition: Coordinates;
-  alertOnScreen: boolean = false;
   alertMessages: AddError[] = [];
+  // localCoordinates: Observable<Coordinates> =
+  //   this.WhetherService.getLocation().pipe(
+  //     map((position: GeolocationPosition) => {
+  //       return {
+  //         lat: position.coords.latitude,
+  //         lon: position.coords.longitude,
+  //       };
+  //     })
+  //   );
+  // cityListWeather: Observable<Coordinates> = from(this.defaultCitiesCoords);
 
   ngOnInit() {
+    // concat(this.localCoordinates, this.cityListWeather)
+    //   .pipe(
+    //     concatMap((coords: Coordinates) => {
+    //       let currentWeatherData = this.WhetherService.getDataNow(coords);
+    //       let forecastWeatherData = this.WhetherService.getDataForecast(coords);
+    //       return concat(currentWeatherData, forecastWeatherData);
+    //     }),
+    //     bufferCount(2),
+    //     map((arr) => {
+    //       return {
+    //         currentWeatherData: arr[0],
+    //         forecastWeatherData: arr[1],
+    //       };
+    //     }),
+    //     take(6)
+    //   )
+    //   .subscribe((response: WheatherData) => {
+    //     this.data.push(response);
+    //   });
     this.WhetherService.getLocation()
       .pipe(
         map((position: GeolocationPosition) => {
@@ -58,19 +95,7 @@ export class AppComponent {
             lon: position.coords.longitude,
           };
         }),
-        switchMap((coords: Coordinates) => {
-          let currentWeatherData = this.WhetherService.getDataNow(coords);
-          let forecastWeatherData = this.WhetherService.getDataForecast(coords);
-          return concat(currentWeatherData, forecastWeatherData);
-        }),
-        bufferCount(2),
-        map((arr) => {
-          return {
-            currentWeatherData: arr[0],
-            forecastWeatherData: arr[1],
-          };
-        }),
-        take(1)
+        this.weatherPipe().bind(this.WhetherService)
       )
       .subscribe((response: WheatherData) => {
         this.data[0] = response;
@@ -79,32 +104,19 @@ export class AppComponent {
       this.WhetherService.getLocationByCity(cityName)
         .pipe(
           map((cityData: CityData) => {
-            console.log(cityData);
             return {
               lat: cityData[0].lat,
               lon: cityData[0].lon,
             };
           }),
-          switchMap((coords: Coordinates) => {
-            let currentWeatherData = this.WhetherService.getDataNow(coords);
-            let forecastWeatherData =
-              this.WhetherService.getDataForecast(coords);
-            return concat(currentWeatherData, forecastWeatherData);
-          }),
-          bufferCount(2),
-          map((arr) => {
-            return {
-              currentWeatherData: arr[0],
-              forecastWeatherData: arr[1],
-            };
-          }),
-          take(1)
+          this.weatherPipe().bind(this.WhetherService)
         )
         .subscribe((response: WheatherData) => {
           this.data[i + 1] = response;
         });
     });
   }
+
   addCity($event) {
     if (this.data.length < 10) {
       this.WhetherService.getLocationByCity($event)
@@ -115,19 +127,7 @@ export class AppComponent {
               lon: cityData[0].lon,
             };
           }),
-          switchMap((coords: Coordinates) => {
-            let currentWeatherData = this.WhetherService.getDataNow(coords);
-            let forecastWeatherData =
-              this.WhetherService.getDataForecast(coords);
-            return concat(currentWeatherData, forecastWeatherData);
-          }),
-          bufferCount(2),
-          map((arr) => {
-            return {
-              currentWeatherData: arr[0],
-              forecastWeatherData: arr[1],
-            };
-          })
+          this.weatherPipe().bind(this.WhetherService)
         )
         .subscribe(
           (response: WheatherData) => {
@@ -135,34 +135,61 @@ export class AppComponent {
             this.current = this.data.length - 1;
           },
           () => {
-            if (this.alertMessages.length <= 3) {
-              this.alertMessages.unshift({
-                title: 'Город не найден',
-                text: 'Попробуйте ещё раз',
-              });
-            } else {
-              this.alertMessages.pop();
-              this.alertMessages.unshift({
-                title: 'Город не найден',
-                text: 'Попробуйте ещё раз',
-              });
-            }
+            this.chooseAlertMessage('cityIsNotFound');
           }
         );
     } else {
-      if (this.alertMessages.length <= 3) {
-        this.alertMessages.unshift({
-          title: 'Список городов переполнен',
-          text: 'Максимальное количество городов: 10',
-        });
-      } else {
-        this.alertMessages.pop();
-        this.alertMessages.unshift({
-          title: 'Список городов переполнен',
-          text: 'Максимальное количество городов: 10',
-        });
-      }
+      this.chooseAlertMessage('tooManyCities');
     }
+  }
+  chooseAlertMessage(type) {
+    let alertTextTooManyCities = {
+      title: 'Список городов переполнен',
+      text: 'Максимальное количество городов: 10',
+    };
+    let alertTextCityIsNotFound = {
+      title: 'Город не найден',
+      text: 'Попробуйте ещё раз',
+    };
+    switch (type) {
+      case 'tooManyCities':
+        if (this.alertMessages.length <= 3) {
+          this.alertMessages.unshift(alertTextTooManyCities);
+        } else {
+          this.alertMessages.pop();
+          this.alertMessages.unshift(alertTextTooManyCities);
+        }
+        break;
+
+      default:
+        if (this.alertMessages.length <= 3) {
+          this.alertMessages.unshift(alertTextCityIsNotFound);
+        } else {
+          this.alertMessages.pop();
+          this.alertMessages.unshift(alertTextCityIsNotFound);
+        }
+        break;
+    }
+  }
+  weatherPipe() {
+    return function (source: Observable<Coordinates>) {
+      return source.pipe(
+        tap(),
+        switchMap((coords: Coordinates) => {
+          let currentWeatherData = this.getDataNow(coords);
+          let forecastWeatherData = this.getDataForecast(coords);
+          return concat(currentWeatherData, forecastWeatherData);
+        }),
+        bufferCount(2),
+        map((arr) => {
+          return {
+            currentWeatherData: arr[0],
+            forecastWeatherData: arr[1],
+          };
+        }),
+        take(1)
+      );
+    };
   }
   nextSlide() {
     if (this.current + 1 <= this.data.length - 1) {

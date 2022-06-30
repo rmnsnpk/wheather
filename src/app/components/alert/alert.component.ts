@@ -20,6 +20,6 @@ export class AlertComponent implements OnInit {
     this.isDeleted = true;
     setTimeout(() => {
       this.alertMessages.splice(this.index, 1);
-    }, 1000);
+    }, 300);
   }
 }
